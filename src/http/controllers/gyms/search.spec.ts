@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import request from 'supertest'
 import { app } from '@/app'
 import { createAndAuthenticateUser } from '@/utils/test/create-and-authenticate-user'
+import { prisma } from '@/lib/prisma'
 
 describe('Search gyms test e2e', () => {
   beforeAll(async () => {
@@ -15,27 +16,46 @@ describe('Search gyms test e2e', () => {
   it('should be able search gyms by title', async () => {
     const { token } = await createAndAuthenticateUser(app)
 
-    await request(app.server)
-      .post('/gyms')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        title: 'JavaScript Gym',
-        description: 'some description',
-        phone: '1199999999',
-        latitude: -21.126087,
-        longitude: -41.659033,
-      })
+    await prisma.gym.createMany({
+      data: [
+        {
+          title: 'JavaScript Gym',
+          description: 'some description',
+          phone: '1199999999',
+          latitude: -21.126087,
+          longitude: -41.659033,
+        },
+        {
+          title: 'TypeScript Gym',
+          description: 'some description',
+          phone: '1199999999',
+          latitude: -21.126087,
+          longitude: -41.659033,
+        },
+      ],
+    })
 
-    await request(app.server)
-      .post('/gyms')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        title: 'TypeScript Gym',
-        description: 'some description',
-        phone: '1199999999',
-        latitude: -21.126087,
-        longitude: -41.659033,
-      })
+    // await request(app.server)
+    //   .post('/gyms')
+    //   .set('Authorization', `Bearer ${token}`)
+    //   .send({
+    //     title: 'JavaScript Gym',
+    //     description: 'some description',
+    //     phone: '1199999999',
+    //     latitude: -21.126087,
+    //     longitude: -41.659033,
+    //   })
+
+    // await request(app.server)
+    //   .post('/gyms')
+    //   .set('Authorization', `Bearer ${token}`)
+    //   .send({
+    //     title: 'TypeScript Gym',
+    //     description: 'some description',
+    //     phone: '1199999999',
+    //     latitude: -21.126087,
+    //     longitude: -41.659033,
+    //   })
 
     const response = await request(app.server)
       .get('/gyms/search')
